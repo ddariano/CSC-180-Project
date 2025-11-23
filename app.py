@@ -7,7 +7,7 @@ import re
 app = Flask(__name__)
 
 # Make sure your OpenAI API key is set in environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # Default Kroki server URL
 KROKI_URL = "https://kroki.io"
