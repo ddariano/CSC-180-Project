@@ -1,0 +1,21 @@
+```latex
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\begin{document}
+\begin{center}
+    \Huge
+    \textbf{\textcolor{red}{a}\textcolor{orange}{l}\textcolor{yellow}{a}\textcolor{green}{l}\textcolor{blue}{a}\textcolor{purple}{l}\textcolor{violet}{a}}
+\end{center}
+
+\begin{tikzpicture}[remember picture, overlay]
+    \node[below right, xshift=0.5cm, yshift=-0.5cm] at (current page.south west) {
+        \includegraphics[width=0.2\textwidth]{example-image-a}
+    };
+\end{tikzpicture}
+
+\end{document}
+```

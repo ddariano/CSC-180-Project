@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagram Generator</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; padding:20px; }
+.container { max-width:900px; margin:0 auto; background:white; border-radius:15px; box-shadow:0 20px 60px rgba(0,0,0,0.3); padding:40px; }
+h1 { color:#333; margin-bottom:30px; text-align:center; font-size:2.5em; }
+label { display:block; margin-bottom:8px; font-weight:600; color:#555; font-size:1.1em; margin-top:15px; }
+textarea, input, select, button { width:100%; padding:12px; border:2px solid #ddd; border-radius:8px; font-size:16px; font-family:inherit; transition:border-color 0.3s; }
+textarea:focus, input:focus, select:focus { outline:none; border-color:#667eea; }
+textarea { min-height:150px; resize:vertical; }
+button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:15px 40px; border:none; border-radius:8px; font-size:18px; font-weight:600; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top:20px; }
+button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+button:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+#error { background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; margin-top:20px; border:1px solid #f5c6cb; display:none; }
+#diagram_container { max-width: 100%; max-height: 500px; overflow: auto; border: 2px solid #ddd; border-radius:8px; padding:20px; background:#f9f9f9; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); margin-top:20px; }
+#diagram_container svg {
+    display: block;
+    transform-origin: top left;
+    max-width: none;
+}
+#diagram_code { background:#f5f5f5; padding:15px; border-radius:8px; margin-top:15px; overflow:auto; max-height:300px; white-space: pre-wrap; word-wrap: break-word; }
+#scaleSlider { margin-top:15px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📊 ChatGPT + Kroki Diagram Generator</h1>
+
+<form id="diagramForm">
+    <div id="initial_inputs">
+        <label>Enter Description:</label>
+        <textarea name="text" placeholder="Describe the diagram..." required></textarea>
+
+        <label>Diagram Type:</label>
+        <select name="diagram_type">
+            <option value="mermaid">Mermaid</option>
+            <option value="plantuml">PlantUML</option>
+            <option value="graphviz">Graphviz</option>
+        </select>
+    </div>
+
+    <label>Revision Instructions</label>
+    <input type="text" id="revision" name="revision" placeholder="Ask for changes..." style="display:none;">
+
+    <button type="submit" id="submitBtn">Generate Diagram</button>
+</form>
+
+<div id="output" style="display:none;">
+    <h2>Generated Diagram:</h2>
+    <div id="diagram_container"></div>
+      <div id="scaleContainer" style="display:none;">
+        <label for="scaleSlider">Zoom Diagram:</label>
+        <input type="range" id="scaleSlider" min="0.2" max="3" step="0.05" value="1">
+    </div>
+    <h3>Diagram Code:</h3>
+    <pre id="diagram_code"></pre>
+    <button id="resetBtn" onclick="location.reload();">Start New Diagram</button>
+</div>
+
+<script>
+const form = document.getElementById('diagramForm');
+const submitBtn = document.getElementById('submitBtn');
+const revisionInput = document.getElementById('revision');
+const initialInputs = document.getElementById('initial_inputs');
+const scaleSlider = document.getElementById('scaleSlider');
+const diagramContainer = document.getElementById('diagram_container');
+let previousCode = '';
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.textContent = "Generating...";
+    submitBtn.disabled = true;
+
+    const formData = new FormData(form);
+
+    // Only send description & diagram_type if first time
+    if (previousCode) {
+        // Revision: remove text & diagram_type from FormData
+        formData.delete('text');
+        formData.delete('diagram_type');
+    }
+
+    if (previousCode) formData.append("previous_code", previousCode);
+
+    try {
+        const res = await fetch('/generate', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById('diagram_code').textContent = data.diagram_code;
+        document.getElementById('diagram_container').innerHTML = data.diagram_svg;
+        document.getElementById('output').style.display = 'block';
+
+        previousCode = data.diagram_code;
+
+        // Show revision input after first diagram
+       revisionInput.style.display = 'block';
+        document.getElementById('scaleContainer').style.display = 'block';
+        applyScale();
+
+        // Hide initial inputs
+        initialInputs.style.display = 'none';
+
+        // Clear description box
+       
+
+    } catch (err) {
+        alert('Error: ' + err.message);
+    } finally {
+        submitBtn.textContent = "Generate Diagram";
+        submitBtn.disabled = false;
+        revisionInput.value = '';
+
+    }
+});
+scaleSlider.addEventListener('input', applyScale);
+function applyScale() {
+    const scale = scaleSlider.value;
+    const svg = diagramContainer.querySelector('svg');
+    if(svg) svg.style.transform = `scale(${scale})`;
+}
+</script>
+</body>
+</html>

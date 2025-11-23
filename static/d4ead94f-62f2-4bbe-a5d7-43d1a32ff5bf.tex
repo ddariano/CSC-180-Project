@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{center}
+    \textbf{\Huge \textcolor{red}{Testing}} \\
+    \textbf{\Huge \textcolor{orange}{Testin}} \\
+    \textbf{\Huge \textcolor{yellow}{123}} \\
+\end{center}
+
+\begin{tikzpicture}[scale=1.5]
+    \fill[red] (0,0) rectangle (1,1);
+    \fill[orange] (1,0) rectangle (2,1);
+    \fill[yellow] (2,0) rectangle (3,1);
+    \fill[green] (3,0) rectangle (4,1);
+    \fill[blue] (4,0) rectangle (5,1);
+    \fill[purple] (5,0) rectangle (6,1);
+    
+    \node at (0.5, 0.5) {\textcolor{white}{\textbf{Testing}}};
+    \node at (1.5, 0.5) {\textcolor{white}{\textbf{Testin}}};
+    \node at (2.5, 0.5) {\textcolor{white}{\textbf{123}}};
+\end{tikzpicture}
+
+\end{document}
